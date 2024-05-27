@@ -72,15 +72,6 @@ function harvestAndSort()
     end
 end
 
--- Función para elevar la tortuga al inicio
-function elevateTurtle()
-    if not turtle.up() then
-        debug("No se pudo elevar la tortuga. Asegúrate de que no haya bloque encima.")
-    else
-        debug("Tortuga elevada un bloque.")
-    end
-end
-
 -- Función para moverse dentro del campo de cultivo
 function moveWithinField()
     for z = 1, length do
@@ -100,6 +91,15 @@ function moveWithinField()
                 turtle.turnLeft()
             end
         end
+    end
+end
+
+-- Función para elevar la tortuga al inicio
+function elevateTurtle()
+    if not turtle.up() then
+        debug("No se pudo elevar la tortuga. Asegúrate de que no haya bloque encima.")
+    else
+        debug("Tortuga elevada un bloque.")
     end
 end
 
@@ -123,10 +123,13 @@ function returnToStart()
 end
 
 -- Programa principal
-debug("Iniciando ciclo principal")
-refuelIfNeeded()
-elevateTurtle()
-moveWithinField()
-returnToStart()
-debug("Ciclo principal completado, esperando 60 segundos")
-sleep(60)
+while true do
+    debug("Iniciando ciclo principal")
+    refuelIfNeeded()
+    turtle.forward() -- Avanza un bloque hacia el sur
+    elevateTurtle()
+    moveWithinField()
+    returnToStart()
+    debug("Ciclo principal completado, esperando 60 segundos")
+    sleep(60)  -- Esperar un minuto antes de la siguiente acción
+end
