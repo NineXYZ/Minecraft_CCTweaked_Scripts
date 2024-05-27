@@ -1,3 +1,8 @@
+-- Configuración de la granja
+local width = 9  -- Ancho del campo de cultivo
+local length = 9  -- Largo del campo de cultivo
+local startX, startY, startZ = gps.locate()  -- Obtener la posición inicial de la tortuga
+
 -- Inicializar posiciones
 local coalChest = "right"    -- Cofre con carbón
 local poisonChest = "back"   -- Cofre para patatas envenenadas
@@ -49,10 +54,11 @@ end
 -- Función para cosechar y clasificar desde arriba
 function harvestAndSort()
     local success, data = inspectAndDebug("down")
-    if success and data.name == "minecraft:potatoes" then
-        debug("La planta detectada es una patata")
+    if success and data.name == "minecraft:potatoes" and data.metadata == 7 then
+        debug("La planta detectada es una patata madura")
         turtle.digDown()
         turtle.suckDown()
+        turtle.placeDown()  -- Replanta la patata
         local itemCount = turtle.getItemCount()
         debug("Cantidad de ítems recogidos: " .. itemCount)
         if itemCount > 0 then
@@ -63,7 +69,50 @@ function harvestAndSort()
             debug("No se recogió ninguna patata")
         end
     else
-        debug("La planta debajo de la tortuga no es una patata")
+        debug("La planta debajo de la tortuga no es una patata madura")
+    end
+end
+
+-- Función para moverse dentro del campo de cultivo
+function moveWithinField()
+    for z = 1, length do
+        for x = 1, width - 1 do
+            harvestAndSort()
+            turtle.forward()
+        end
+        harvestAndSort()
+        if z < length then
+            if z % 2 == 1 then
+                turtle.turnRight()
+                turtle.forward()
+                turtle.turnRight()
+            else
+                turtle.turnLeft()
+                turtle.forward()
+                turtle.turnLeft()
+            end
+        end
+    end
+end
+
+-- Función para volver a la posición inicial
+function returnToStart()
+    local currentX, currentY, currentZ = gps.locate()
+    while currentZ > startZ do
+        turtle.back()
+        currentZ = currentZ - 1
+    end
+    while currentX > startX do
+        turtle.turnLeft()
+        turtle.forward()
+        turtle.turnRight()
+        currentX = currentX - 1
+    end
+    while currentX < startX do
+        turtle.turnRight()
+        turtle.forward()
+        turtle.turnLeft()
+        currentX = currentX + 1
     end
 end
 
@@ -71,8 +120,8 @@ end
 while true do
     debug("Iniciando ciclo principal")
     refuelIfNeeded()
-    harvestAndSort()
-    turtle.forward()
+    moveWithinField()
+    returnToStart()
     sleep(60)  -- Esperar un minuto antes de la siguiente acción
     debug("Ciclo principal completado, esperando 60 segundos")
 end
