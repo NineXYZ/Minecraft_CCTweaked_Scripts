@@ -25,25 +25,27 @@ end
 
 -- Función para cosechar y clasificar
 function harvestAndSort()
-    turtle.select(2)
-    turtle.dig()
     local success, data = turtle.inspect()
-    if success and data.name == "minecraft:potato" then
-        debug("Se detectó una planta de patata")
-        turtle.suck()
-        if data.metadata == 6 then  -- Verifica si la patata está envenenada (metadata puede variar, ajusta según sea necesario)
-            debug("Patata envenenada detectada, guardando en el cofre correspondiente")
-            turtle.turnLeft()
-            turtle.drop()
-            turtle.turnRight()
+    if success then
+        debug("Se detectó una planta delante de la tortuga")
+        if data.name == "minecraft:potatoes" then
+            debug("La planta detectada es una patata")
+            turtle.dig()
+            turtle.suck()
+            local itemCount = turtle.getItemCount()
+            debug("Cantidad de ítems recogidos: " .. itemCount)
+            if itemCount > 0 then
+                turtle.turnRight()
+                turtle.drop(normalChest)
+                turtle.turnLeft()
+            else
+                debug("No se recogió ninguna patata")
+            end
         else
-            debug("Patata normal detectada, guardando en el cofre correspondiente")
-            turtle.turnRight()
-            turtle.drop()
-            turtle.turnLeft()
+            debug("La planta delante de la tortuga no es una patata")
         end
     else
-        debug("No se detectó ninguna planta de patata")
+        debug("No se detectó ninguna planta delante de la tortuga")
     end
 end
 
