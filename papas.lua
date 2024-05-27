@@ -6,6 +6,7 @@ local coalChest = "right"    -- Cofre con carbón
 local poisonChest = "back"   -- Cofre para patatas envenenadas
 local normalChest = "left"   -- Cofre para patatas normales
 local fuelThreshold = 20     -- Umbral mínimo de combustible
+local width, length = 4, 11  -- Ancho y largo del campo de cultivo (se determinará dinámicamente)
 
 -- Función para imprimir mensajes de depuración
 function debug(message)
@@ -77,27 +78,25 @@ function detectFieldLimits()
     local minX, maxX, minZ, maxZ = startX, startX, startZ, startZ
     
     -- Detectar el borde derecho del campo
-    turtle.forward()
     for i = 1, 10 do
+        turtle.forward()
         local success, data = inspectAndDebug("down")
         if success and data.name == markerBlock then
             maxX = startX + i
             break
         end
-        turtle.forward()
     end
     turtle.back(10)  -- Volver a la posición inicial
 
     -- Detectar el borde superior del campo
     turtle.turnRight()
-    turtle.forward()
     for i = 1, 10 do
+        turtle.forward()
         local success, data = inspectAndDebug("down")
         if success and data.name == markerBlock then
             maxZ = startZ + i
             break
         end
-        turtle.forward()
     end
     turtle.back(10)  -- Volver a la posición inicial
     turtle.turnLeft()
