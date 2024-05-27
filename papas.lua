@@ -1,7 +1,6 @@
 -- Configuración de la granja
-local width = 9  -- Ancho del campo de cultivo
-local length = 9  -- Largo del campo de cultivo
-local startX, startY, startZ = gps.locate()  -- Obtener la posición inicial de la tortuga
+local width = 4  -- Ancho del campo de cultivo
+local length = 11  -- Largo del campo de cultivo
 
 -- Inicializar posiciones
 local coalChest = "right"    -- Cofre con carbón
@@ -95,24 +94,12 @@ function moveWithinField()
     end
 end
 
--- Función para volver a la posición inicial
-function returnToStart()
-    local currentX, currentY, currentZ = gps.locate()
-    while currentZ > startZ do
-        turtle.back()
-        currentZ = currentZ - 1
-    end
-    while currentX > startX do
-        turtle.turnLeft()
-        turtle.forward()
-        turtle.turnRight()
-        currentX = currentX - 1
-    end
-    while currentX < startX do
-        turtle.turnRight()
-        turtle.forward()
-        turtle.turnLeft()
-        currentX = currentX + 1
+-- Función para elevar la tortuga al inicio
+function elevateTurtle()
+    if not turtle.up() then
+        debug("No se pudo elevar la tortuga. Asegúrate de que no haya bloque encima.")
+    else
+        debug("Tortuga elevada un bloque.")
     end
 end
 
@@ -120,8 +107,24 @@ end
 while true do
     debug("Iniciando ciclo principal")
     refuelIfNeeded()
+    elevateTurtle()
     moveWithinField()
-    returnToStart()
+    -- Regresar al inicio después de completar el ciclo
+    turtle.turnRight()
+    turtle.turnRight()
+    for z = 1, length do
+        for x = 1, width do
+            turtle.forward()
+        end
+        if z < length then
+            turtle.turnRight()
+            turtle.forward()
+            turtle.turnRight()
+        end
+    end
+    -- Reposicionarse para el siguiente ciclo
+    turtle.turnRight()
+    turtle.turnRight()
     sleep(60)  -- Esperar un minuto antes de la siguiente acción
     debug("Ciclo principal completado, esperando 60 segundos")
 end
