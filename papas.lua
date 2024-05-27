@@ -23,29 +23,47 @@ function refuelIfNeeded()
     end
 end
 
--- Función para cosechar y clasificar
-function harvestAndSort()
-    local success, data = turtle.inspect()
+-- Función para inspeccionar y depurar bloques
+function inspectAndDebug(direction)
+    local success, data
+    if direction == "down" then
+        success, data = turtle.inspectDown()
+    elseif direction == "up" then
+        success, data = turtle.inspectUp()
+    else
+        success, data = turtle.inspect()
+    end
+    
     if success then
-        debug("Se detectó una planta delante de la tortuga")
-        if data.name == "minecraft:potatoes" then
-            debug("La planta detectada es una patata")
-            turtle.dig()
-            turtle.suck()
-            local itemCount = turtle.getItemCount()
-            debug("Cantidad de ítems recogidos: " .. itemCount)
-            if itemCount > 0 then
-                turtle.turnRight()
-                turtle.drop(normalChest)
-                turtle.turnLeft()
-            else
-                debug("No se recogió ninguna patata")
-            end
-        else
-            debug("La planta delante de la tortuga no es una patata")
+        debug("Se detectó un bloque " .. direction)
+        debug("Nombre del bloque: " .. data.name)
+        if data.metadata then
+            debug("Metadata del bloque: " .. data.metadata)
         end
     else
-        debug("No se detectó ninguna planta delante de la tortuga")
+        debug("No se detectó ningún bloque " .. direction)
+    end
+    return success, data
+end
+
+-- Función para cosechar y clasificar desde arriba
+function harvestAndSort()
+    local success, data = inspectAndDebug("down")
+    if success and data.name == "minecraft:potatoes" then
+        debug("La planta detectada es una patata")
+        turtle.digDown()
+        turtle.suckDown()
+        local itemCount = turtle.getItemCount()
+        debug("Cantidad de ítems recogidos: " .. itemCount)
+        if itemCount > 0 then
+            turtle.turnRight()
+            turtle.dropDown()
+            turtle.turnLeft()
+        else
+            debug("No se recogió ninguna patata")
+        end
+    else
+        debug("La planta debajo de la tortuga no es una patata")
     end
 end
 
