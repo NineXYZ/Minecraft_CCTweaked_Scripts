@@ -1,6 +1,5 @@
 -- Configuración de la granja
-local width = 4  -- Ancho del campo de cultivo
-local length = 11  -- Largo del campo de cultivo
+local markerBlock = "minecraft:redstone_block"
 
 -- Inicializar posiciones
 local coalChest = "right"    -- Cofre con carbón
@@ -72,6 +71,43 @@ function harvestAndSort()
     end
 end
 
+-- Función para detectar los límites del campo de cultivo
+function detectFieldLimits()
+    local startX, startY, startZ = gps.locate()
+    local minX, maxX, minZ, maxZ = startX, startX, startZ, startZ
+    
+    -- Detectar el borde derecho del campo
+    turtle.forward()
+    for i = 1, 10 do
+        local success, data = inspectAndDebug("down")
+        if success and data.name == markerBlock then
+            maxX = startX + i
+            break
+        end
+        turtle.forward()
+    end
+    turtle.back(10)  -- Volver a la posición inicial
+
+    -- Detectar el borde superior del campo
+    turtle.turnRight()
+    turtle.forward()
+    for i = 1, 10 do
+        local success, data = inspectAndDebug("down")
+        if success and data.name == markerBlock then
+            maxZ = startZ + i
+            break
+        end
+        turtle.forward()
+    end
+    turtle.back(10)  -- Volver a la posición inicial
+    turtle.turnLeft()
+
+    width = maxX - startX
+    length = maxZ - startZ
+
+    debug("Límites del campo de cultivo detectados: Ancho = " .. width .. ", Largo = " .. length)
+end
+
 -- Función para moverse dentro del campo de cultivo
 function moveWithinField()
     for z = 1, length do
@@ -128,6 +164,7 @@ while true do
     refuelIfNeeded()
     turtle.forward() -- Avanza un bloque hacia el sur
     elevateTurtle()
+    detectFieldLimits()
     moveWithinField()
     returnToStart()
     debug("Ciclo principal completado, esperando 60 segundos")
